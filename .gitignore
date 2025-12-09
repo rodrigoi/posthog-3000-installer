@@ -1,18 +1,25 @@
 # Dependencies
 node_modules/
+**/node_modules/
 
 # Build outputs
 dist/
 dist-electron/
 out/
+**/dist/
+**/dist-electron/
+**/out/
 
 # Development
 .vite/
 *.log
+**/.vite/
 
 # OS files
 .DS_Store
+**/.DS_Store
 Thumbs.db
+**/Thumbs.db
 
 # IDE
 .vscode/
@@ -32,3 +39,8 @@ src/renderer/assets/*.png
 src/renderer/assets/*.jpg
 src/renderer/assets/*.wav
 src/renderer/assets/*.mp3
+**/resources/icon.png
+**/src/renderer/assets/*.png
+**/src/renderer/assets/*.jpg
+**/src/renderer/assets/*.wav
+**/src/renderer/assets/*.mp3
