@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PostHog 3000 Setup</title>
+  <link rel="stylesheet" href="../../node_modules/98.css/dist/98.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="installer-container">
+    <!-- Main installer window -->
+    <div class="window installer-window">
+      <div class="title-bar">
+        <div class="title-bar-text">PostHog 3000 Setup</div>
+        <div class="title-bar-controls">
+          <button aria-label="Minimize" disabled></button>
+          <button aria-label="Maximize" disabled></button>
+          <button aria-label="Close" id="close-btn"></button>
+        </div>
+      </div>
+
+      <div class="window-body">
+        <!-- Installer layout: sidebar + content -->
+        <div class="installer-layout">
+          <!-- Left sidebar with branding -->
+          <div class="installer-sidebar">
+            <div class="sidebar-content">
+              <div class="posthog-logo" id="logo">
+                <div class="logo-placeholder">
+                  <div class="logo-text">PostHog</div>
+                  <div class="logo-version">3000</div>
+                </div>
+              </div>
+              <div class="sidebar-tagline">
+                The Engineer's Analytics Platform<br>
+                <small>Now In Glorious 256 Colors!</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main content area -->
+          <div class="installer-content">
+            <!-- Screen container - content will be injected here -->
+            <div id="screen-container"></div>
+
+            <!-- Navigation buttons -->
+            <div class="installer-nav">
+              <div class="nav-spacer"></div>
+              <button id="back-btn" disabled>&lt; Back</button>
+              <button id="next-btn">Next &gt;</button>
+              <button id="cancel-btn">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation dialog (hidden by default) -->
+  <div id="cancel-dialog" class="dialog-overlay" style="display: none;">
+    <div class="window dialog-window">
+      <div class="title-bar">
+        <div class="title-bar-text">Exit Setup?</div>
+      </div>
+      <div class="window-body">
+        <div class="dialog-content">
+          <p>Setup is not complete. If you exit now, PostHog 3000 will not be installed.</p>
+          <p>Exit Setup?</p>
+        </div>
+        <div class="dialog-buttons">
+          <button id="dialog-yes">Yes</button>
+          <button id="dialog-no">No</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

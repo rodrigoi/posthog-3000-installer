@@ -1,0 +1,397 @@
+/* Custom styles for PostHog 3000 Installer */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
+  background-color: #008080; /* Classic teal Windows desktop */
+  overflow: hidden;
+}
+
+.installer-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.installer-window {
+  width: 100%;
+  max-width: 800px;
+  height: 600px;
+  margin: 0 auto;
+}
+
+.installer-window .window-body {
+  padding: 0;
+  height: calc(600px - 33px); /* Subtract title bar height */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Installer layout */
+.installer-layout {
+  display: flex;
+  height: 100%;
+}
+
+/* Left sidebar */
+.installer-sidebar {
+  width: 200px;
+  background: linear-gradient(180deg, #000080 0%, #000050 100%);
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  border-right: 2px solid #808080;
+}
+
+.sidebar-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.posthog-logo {
+  cursor: pointer;
+  user-select: none;
+}
+
+.logo-placeholder {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.logo-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: #FFD700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  margin-bottom: 5px;
+}
+
+.logo-version {
+  font-size: 32px;
+  font-weight: bold;
+  color: #FFFFFF;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar-tagline {
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sidebar-tagline small {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Main content area */
+.installer-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #c0c0c0;
+}
+
+#screen-container {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Navigation */
+.installer-nav {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  border-top: 2px solid #808080;
+  background-color: #c0c0c0;
+}
+
+.nav-spacer {
+  flex: 1;
+}
+
+.installer-nav button {
+  min-width: 80px;
+}
+
+/* Screen styles */
+.screen {
+  animation: fadeIn 0.1s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.screen h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.screen p {
+  margin: 10px 0;
+  line-height: 1.5;
+}
+
+/* Welcome screen */
+.welcome-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.welcome-text {
+  margin-bottom: 15px;
+}
+
+/* License screen */
+.license-text {
+  width: 100%;
+  height: 250px;
+  margin-bottom: 15px;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  resize: none;
+}
+
+.license-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Directory screen */
+.directory-input-group {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.directory-input-group input[type="text"] {
+  flex: 1;
+}
+
+.space-info {
+  margin-top: 20px;
+  padding: 10px;
+  background: white;
+  border: 1px solid #808080;
+}
+
+.space-info-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+}
+
+/* Component selection screen */
+.components-list {
+  margin: 15px 0;
+}
+
+.component-item {
+  display: flex;
+  align-items: flex-start;
+  margin: 12px 0;
+  padding: 8px;
+  background: white;
+  border: 1px solid #808080;
+}
+
+.component-item input[type="checkbox"] {
+  margin-right: 10px;
+  margin-top: 2px;
+}
+
+.component-info {
+  flex: 1;
+}
+
+.component-name {
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+
+.component-description {
+  font-size: 11px;
+  color: #000000;
+}
+
+.component-size {
+  font-size: 10px;
+  color: #808080;
+  margin-left: auto;
+  padding-left: 15px;
+  white-space: nowrap;
+}
+
+/* Configuration screen */
+.config-form {
+  margin: 15px 0;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group select {
+  width: 100%;
+  max-width: 400px;
+}
+
+.input-with-button {
+  display: flex;
+  gap: 10px;
+}
+
+.input-with-button input {
+  flex: 1;
+}
+
+.advanced-section {
+  margin-top: 20px;
+  padding: 15px;
+  border: 2px groove #808080;
+}
+
+.advanced-section summary {
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 10px;
+  user-select: none;
+}
+
+/* Installing screen */
+.progress-container {
+  margin: 20px 0;
+}
+
+.progress-label {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.file-list {
+  margin-top: 20px;
+  padding: 10px;
+  background: white;
+  border: 2px inset #808080;
+  height: 200px;
+  overflow-y: auto;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+}
+
+.file-item {
+  padding: 2px 0;
+  color: #000080;
+}
+
+.status-text {
+  margin-top: 15px;
+  font-size: 11px;
+  color: #000000;
+}
+
+/* Finish screen */
+.finish-icon {
+  font-size: 48px;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.finish-message {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.finish-options {
+  margin: 20px 0;
+}
+
+.finish-options label {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+.finish-options input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+/* Dialog overlay */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog-window {
+  width: 400px;
+  max-width: 90%;
+}
+
+.dialog-content {
+  margin-bottom: 20px;
+}
+
+.dialog-content p {
+  margin: 10px 0;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.dialog-buttons button {
+  min-width: 80px;
+}
+
+/* Scrollbar styling for textareas */
+textarea {
+  scrollbar-width: thin;
+  scrollbar-color: #c0c0c0 #ffffff;
+}
+
+/* Progress bar customization (98.css provides base) */
+progress {
+  width: 100%;
+  height: 25px;
+}

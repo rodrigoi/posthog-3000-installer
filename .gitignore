@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+dist-electron/
+out/
+
+# Development
+.vite/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Electron
+*.dmg
+*.AppImage
+*.exe
+*.snap
+
+# Assets (users should add their own)
+resources/icon.png
+src/renderer/assets/*.png
+src/renderer/assets/*.jpg
+src/renderer/assets/*.wav
+src/renderer/assets/*.mp3
