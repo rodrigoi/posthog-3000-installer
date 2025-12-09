@@ -1,8 +1,9 @@
 // Installing screen
 
-import { advanceFromInstalling } from '../main.js'
+import { advanceFromInstalling } from '../main'
+import type { Screen, InstallerState } from '../../types'
 
-const FAKE_FILES = [
+const FAKE_FILES: string[] = [
   'posthog-core.dll',
   'analytics-engine.exe',
   'event-processor.sys',
@@ -24,8 +25,8 @@ const FAKE_FILES = [
   'license.txt'
 ]
 
-export const installingScreen = {
-  render(state) {
+export const installingScreen: Screen = {
+  render(state: InstallerState): HTMLElement {
     const screen = document.createElement('div')
     screen.className = 'screen installing-screen'
     screen.innerHTML = `
@@ -49,27 +50,27 @@ export const installingScreen = {
     return screen
   },
 
-  setupListeners(state, updateNav) {
+  setupListeners(state: InstallerState, updateNav: () => void): void {
     // Start the fake installation process
     setTimeout(() => {
       startFakeInstallation(state)
     }, 500)
   },
 
-  canProceed(state) {
+  canProceed(state: InstallerState): boolean {
     return state.installComplete
   }
 }
 
-function startFakeInstallation(state) {
-  const progressBar = document.getElementById('install-progress')
-  const fileList = document.getElementById('file-list')
-  const statusText = document.getElementById('status-text')
+function startFakeInstallation(state: InstallerState): void {
+  const progressBar = document.getElementById('install-progress') as HTMLProgressElement
+  const fileList = document.getElementById('file-list')!
+  const statusText = document.getElementById('status-text')!
 
   let currentFile = 0
   let progress = 0
 
-  const statuses = [
+  const statuses: string[] = [
     'Extracting files...',
     'Copying files to destination...',
     'Registering COM components...',
@@ -89,7 +90,7 @@ function startFakeInstallation(state) {
       const fileItem = document.createElement('div')
       fileItem.className = 'file-item'
 
-      const actions = ['Extracting:', 'Copying:', 'Installing:', 'Registering:']
+      const actions: string[] = ['Extracting:', 'Copying:', 'Installing:', 'Registering:']
       const action = actions[Math.floor(Math.random() * actions.length)]
 
       fileItem.textContent = `${action} ${state.installPath}\\${FAKE_FILES[currentFile]}`

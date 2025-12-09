@@ -1,7 +1,9 @@
 // License Agreement screen
 
-export const licenseScreen = {
-  render(state) {
+import type { Screen, InstallerState } from '../../types'
+
+export const licenseScreen: Screen = {
+  render(state: InstallerState): HTMLElement {
     const screen = document.createElement('div')
     screen.className = 'screen license-screen'
     screen.innerHTML = `
@@ -57,11 +59,11 @@ ADDITIONAL TERMS:
     return screen
   },
 
-  setupListeners(state, updateNav) {
-    const acceptRadio = document.getElementById('license-accept')
-    const declineRadio = document.getElementById('license-decline')
+  setupListeners(state: InstallerState, updateNav: () => void): void {
+    const acceptRadio = document.getElementById('license-accept') as HTMLInputElement
+    const declineRadio = document.getElementById('license-decline') as HTMLInputElement
 
-    const handleChange = () => {
+    const handleChange = (): void => {
       state.licenseAccepted = acceptRadio.checked
       updateNav()
     }
@@ -75,7 +77,7 @@ ADDITIONAL TERMS:
     }
   },
 
-  canProceed(state) {
+  canProceed(state: InstallerState): boolean {
     return state.licenseAccepted
   }
 }

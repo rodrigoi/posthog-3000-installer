@@ -1,6 +1,8 @@
 // Component Selection screen
 
-const COMPONENTS = [
+import type { Screen, InstallerState, Component } from '../../types'
+
+const COMPONENTS: Component[] = [
   {
     id: 'analytics',
     name: 'Analytics & Product Analytics',
@@ -45,8 +47,8 @@ const COMPONENTS = [
   }
 ]
 
-export const componentsScreen = {
-  render(state) {
+export const componentsScreen: Screen = {
+  render(state: InstallerState): HTMLElement {
     const screen = document.createElement('div')
     screen.className = 'screen components-screen'
 
@@ -87,13 +89,14 @@ export const componentsScreen = {
     return screen
   },
 
-  setupListeners(state, updateNav) {
-    const checkboxes = document.querySelectorAll('#components-list input[type="checkbox"]')
+  setupListeners(state: InstallerState, updateNav: () => void): void {
+    const checkboxes = document.querySelectorAll<HTMLInputElement>('#components-list input[type="checkbox"]')
 
     checkboxes.forEach(checkbox => {
       checkbox.addEventListener('change', (e) => {
-        const componentId = e.target.value
-        if (e.target.checked) {
+        const target = e.target as HTMLInputElement
+        const componentId = target.value
+        if (target.checked) {
           if (!state.selectedComponents.includes(componentId)) {
             state.selectedComponents.push(componentId)
           }
@@ -113,12 +116,12 @@ export const componentsScreen = {
     })
   },
 
-  canProceed(state) {
+  canProceed(state: InstallerState): boolean {
     return state.selectedComponents.length > 0
   }
 }
 
-function calculateTotalSize(selectedComponents) {
+function calculateTotalSize(selectedComponents: string[]): string {
   let total = 0
   COMPONENTS.forEach(component => {
     if (selectedComponents.includes(component.id)) {

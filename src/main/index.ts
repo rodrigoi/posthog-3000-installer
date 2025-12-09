@@ -1,9 +1,9 @@
-import { app, BrowserWindow } from "electron";
-import { join } from "path";
+import { app, BrowserWindow } from "electron"
+import { join } from "path"
 
-let mainWindow;
+let mainWindow: BrowserWindow | null
 
-function createWindow() {
+function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -16,41 +16,41 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
     },
-  });
+  })
 
   // Load the index.html of the app
   if (process.env.NODE_ENV === "development") {
-    mainWindow.loadURL("http://localhost:5173");
+    mainWindow.loadURL("http://localhost:5173")
     // mainWindow.webContents.openDevTools() // Uncomment for debugging
   } else {
-    mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
+    mainWindow.loadFile(join(__dirname, "../renderer/index.html"))
   }
 
   // Prevent navigation away from app
   mainWindow.webContents.on("will-navigate", (event) => {
-    event.preventDefault();
-  });
+    event.preventDefault()
+  })
 
   mainWindow.on("closed", () => {
-    mainWindow = null;
-  });
+    mainWindow = null
+  })
 }
 
 // This method will be called when Electron has finished initialization
 app.whenReady().then(() => {
-  createWindow();
+  createWindow()
 
   app.on("activate", () => {
     // On macOS, re-create window when dock icon is clicked
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+      createWindow()
     }
-  });
-});
+  })
+})
 
 // Quit when all windows are closed (except on macOS)
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
-    app.quit();
+    app.quit()
   }
-});
+})

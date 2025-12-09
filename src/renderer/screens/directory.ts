@@ -1,7 +1,9 @@
 // Directory Selection screen
 
-export const directoryScreen = {
-  render(state) {
+import type { Screen, InstallerState } from '../../types'
+
+export const directoryScreen: Screen = {
+  render(state: InstallerState): HTMLElement {
     const screen = document.createElement('div')
     screen.className = 'screen directory-screen'
     screen.innerHTML = `
@@ -39,12 +41,13 @@ export const directoryScreen = {
     return screen
   },
 
-  setupListeners(state, updateNav) {
-    const pathInput = document.getElementById('install-path')
-    const browseBtn = document.getElementById('browse-btn')
+  setupListeners(state: InstallerState, updateNav: () => void): void {
+    const pathInput = document.getElementById('install-path') as HTMLInputElement
+    const browseBtn = document.getElementById('browse-btn')!
 
     pathInput.addEventListener('input', (e) => {
-      state.installPath = e.target.value
+      const target = e.target as HTMLInputElement
+      state.installPath = target.value
     })
 
     browseBtn.addEventListener('click', () => {
@@ -53,12 +56,12 @@ export const directoryScreen = {
     })
   },
 
-  canProceed(state) {
+  canProceed(state: InstallerState): boolean {
     return state.installPath && state.installPath.length > 0
   }
 }
 
-function showFakeBrowseDialog(state, pathInput) {
+function showFakeBrowseDialog(state: InstallerState, pathInput: HTMLInputElement): void {
   const dialog = document.createElement('div')
   dialog.className = 'dialog-overlay'
   dialog.innerHTML = `
@@ -92,12 +95,12 @@ function showFakeBrowseDialog(state, pathInput) {
 
   document.body.appendChild(dialog)
 
-  document.getElementById('fake-browse-ok').addEventListener('click', () => {
+  document.getElementById('fake-browse-ok')!.addEventListener('click', () => {
     // Keep the path as is
     document.body.removeChild(dialog)
   })
 
-  document.getElementById('fake-browse-cancel').addEventListener('click', () => {
+  document.getElementById('fake-browse-cancel')!.addEventListener('click', () => {
     document.body.removeChild(dialog)
   })
 }

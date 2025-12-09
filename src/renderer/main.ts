@@ -1,15 +1,16 @@
 // Main installer logic and state management
 
-import { welcomeScreen } from './screens/welcome.js'
-import { licenseScreen } from './screens/license.js'
-import { directoryScreen } from './screens/directory.js'
-import { componentsScreen } from './screens/components.js'
-import { configurationScreen } from './screens/configuration.js'
-import { installingScreen } from './screens/installing.js'
-import { finishScreen } from './screens/finish.js'
+import { welcomeScreen } from './screens/welcome'
+import { licenseScreen } from './screens/license'
+import { directoryScreen } from './screens/directory'
+import { componentsScreen } from './screens/components'
+import { configurationScreen } from './screens/configuration'
+import { installingScreen } from './screens/installing'
+import { finishScreen } from './screens/finish'
+import type { InstallerState, Screen } from '../types'
 
 // Global state
-const state = {
+const state: InstallerState = {
   currentScreen: 0,
   licenseAccepted: false,
   installPath: 'C:\\Program Files\\PostHog3000',
@@ -24,7 +25,7 @@ const state = {
 }
 
 // Screen definitions
-const screens = [
+const screens: Screen[] = [
   welcomeScreen,
   licenseScreen,
   directoryScreen,
@@ -35,28 +36,28 @@ const screens = [
 ]
 
 // DOM elements
-let screenContainer
-let backBtn
-let nextBtn
-let cancelBtn
-let cancelDialog
-let dialogYes
-let dialogNo
-let closeBtn
-let logo
+let screenContainer: HTMLElement
+let backBtn: HTMLButtonElement
+let nextBtn: HTMLButtonElement
+let cancelBtn: HTMLButtonElement
+let cancelDialog: HTMLElement
+let dialogYes: HTMLButtonElement
+let dialogNo: HTMLButtonElement
+let closeBtn: HTMLButtonElement
+let logo: HTMLElement
 
 // Initialize the app
-function init() {
+function init(): void {
   // Get DOM elements
-  screenContainer = document.getElementById('screen-container')
-  backBtn = document.getElementById('back-btn')
-  nextBtn = document.getElementById('next-btn')
-  cancelBtn = document.getElementById('cancel-btn')
-  cancelDialog = document.getElementById('cancel-dialog')
-  dialogYes = document.getElementById('dialog-yes')
-  dialogNo = document.getElementById('dialog-no')
-  closeBtn = document.getElementById('close-btn')
-  logo = document.getElementById('logo')
+  screenContainer = document.getElementById('screen-container')!
+  backBtn = document.getElementById('back-btn') as HTMLButtonElement
+  nextBtn = document.getElementById('next-btn') as HTMLButtonElement
+  cancelBtn = document.getElementById('cancel-btn') as HTMLButtonElement
+  cancelDialog = document.getElementById('cancel-dialog')!
+  dialogYes = document.getElementById('dialog-yes') as HTMLButtonElement
+  dialogNo = document.getElementById('dialog-no') as HTMLButtonElement
+  closeBtn = document.getElementById('close-btn') as HTMLButtonElement
+  logo = document.getElementById('logo')!
 
   // Set up event listeners
   backBtn.addEventListener('click', goBack)
@@ -74,7 +75,7 @@ function init() {
 }
 
 // Render the current screen
-function renderScreen() {
+function renderScreen(): void {
   const screen = screens[state.currentScreen]
 
   if (screen) {
@@ -92,7 +93,7 @@ function renderScreen() {
 }
 
 // Update navigation button states
-function updateNavigation() {
+function updateNavigation(): void {
   const screen = screens[state.currentScreen]
 
   // Back button
@@ -125,7 +126,7 @@ function updateNavigation() {
 }
 
 // Go to next screen
-function goNext() {
+function goNext(): void {
   const screen = screens[state.currentScreen]
 
   // Run screen's onNext handler if it exists
@@ -153,7 +154,7 @@ function goNext() {
 }
 
 // Go to previous screen
-function goBack() {
+function goBack(): void {
   if (state.currentScreen > 0) {
     state.currentScreen--
     renderScreen()
@@ -161,7 +162,7 @@ function goBack() {
 }
 
 // Show cancel confirmation dialog
-function showCancelDialog() {
+function showCancelDialog(): void {
   // Don't show dialog on finish screen
   if (state.currentScreen === screens.length - 1) {
     exitApp()
@@ -172,12 +173,12 @@ function showCancelDialog() {
 }
 
 // Hide cancel dialog
-function hideCancelDialog() {
+function hideCancelDialog(): void {
   cancelDialog.style.display = 'none'
 }
 
 // Exit the application
-function exitApp() {
+function exitApp(): void {
   if (window.electronAPI) {
     // In Electron, close the window
     window.close()
@@ -188,7 +189,7 @@ function exitApp() {
 }
 
 // Logo easter egg - click 10 times
-function handleLogoClick() {
+function handleLogoClick(): void {
   state.logoClickCount++
 
   if (state.logoClickCount === 10) {
@@ -198,7 +199,7 @@ function handleLogoClick() {
 }
 
 // Show easter egg dialog
-function showEasterEgg() {
+function showEasterEgg(): void {
   const easterEggDialog = document.createElement('div')
   easterEggDialog.className = 'dialog-overlay'
   easterEggDialog.innerHTML = `
@@ -228,13 +229,16 @@ function showEasterEgg() {
 
   document.body.appendChild(easterEggDialog)
 
-  document.getElementById('easter-egg-ok').addEventListener('click', () => {
-    document.body.removeChild(easterEggDialog)
-  })
+  const okButton = document.getElementById('easter-egg-ok')
+  if (okButton) {
+    okButton.addEventListener('click', () => {
+      document.body.removeChild(easterEggDialog)
+    })
+  }
 }
 
 // Auto-advance from installing to finish screen
-export function advanceFromInstalling() {
+export function advanceFromInstalling(): void {
   state.currentScreen++
   renderScreen()
 }

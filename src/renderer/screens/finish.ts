@@ -1,7 +1,9 @@
 // Finish screen
 
-export const finishScreen = {
-  render(state) {
+import type { Screen, InstallerState } from '../../types'
+
+export const finishScreen: Screen = {
+  render(state: InstallerState): HTMLElement {
     const screen = document.createElement('div')
     screen.className = 'screen finish-screen'
     screen.innerHTML = `
@@ -55,29 +57,31 @@ export const finishScreen = {
     return screen
   },
 
-  setupListeners(state) {
+  setupListeners(state: InstallerState): void {
     // No special listeners needed, but we could track checkbox states if we wanted
-    const launchCheckbox = document.getElementById('launch-posthog')
-    const readmeCheckbox = document.getElementById('view-readme')
+    const launchCheckbox = document.getElementById('launch-posthog') as HTMLInputElement
+    const readmeCheckbox = document.getElementById('view-readme') as HTMLInputElement
 
     // These don't actually do anything in this demo, but could trigger actions
     launchCheckbox.addEventListener('change', (e) => {
-      console.log('Launch PostHog:', e.target.checked)
+      const target = e.target as HTMLInputElement
+      console.log('Launch PostHog:', target.checked)
     })
 
     readmeCheckbox.addEventListener('change', (e) => {
-      console.log('View README:', e.target.checked)
+      const target = e.target as HTMLInputElement
+      console.log('View README:', target.checked)
     })
   },
 
-  canProceed(state) {
+  canProceed(state: InstallerState): boolean {
     return true
   },
 
-  onNext(state) {
+  onNext(state: InstallerState): void {
     // This will close the app via the Finish button
-    const launchCheckbox = document.getElementById('launch-posthog')
-    const readmeCheckbox = document.getElementById('view-readme')
+    const launchCheckbox = document.getElementById('launch-posthog') as HTMLInputElement | null
+    const readmeCheckbox = document.getElementById('view-readme') as HTMLInputElement | null
 
     if (launchCheckbox?.checked || readmeCheckbox?.checked) {
       // In a real app, we'd launch PostHog or open the README

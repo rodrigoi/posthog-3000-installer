@@ -1,7 +1,9 @@
 // Configuration screen
 
-export const configurationScreen = {
-  render(state) {
+import type { Screen, InstallerState } from '../../types'
+
+export const configurationScreen: Screen = {
+  render(state: InstallerState): HTMLElement {
     const screen = document.createElement('div')
     screen.className = 'screen configuration-screen'
     screen.innerHTML = `
@@ -80,23 +82,26 @@ export const configurationScreen = {
     return screen
   },
 
-  setupListeners(state, updateNav) {
-    const projectName = document.getElementById('project-name')
-    const instanceType = document.getElementById('instance-type')
-    const apiKey = document.getElementById('api-key')
-    const apiKeyBtn = document.getElementById('api-key-btn')
+  setupListeners(state: InstallerState, updateNav: () => void): void {
+    const projectName = document.getElementById('project-name') as HTMLInputElement
+    const instanceType = document.getElementById('instance-type') as HTMLSelectElement
+    const apiKey = document.getElementById('api-key') as HTMLInputElement
+    const apiKeyBtn = document.getElementById('api-key-btn')!
 
     projectName.addEventListener('input', (e) => {
-      state.configData.projectName = e.target.value
+      const target = e.target as HTMLInputElement
+      state.configData.projectName = target.value
       updateNav()
     })
 
     instanceType.addEventListener('change', (e) => {
-      state.configData.instanceType = e.target.value
+      const target = e.target as HTMLSelectElement
+      state.configData.instanceType = target.value as 'cloud' | 'self-hosted'
     })
 
     apiKey.addEventListener('input', (e) => {
-      state.configData.apiKey = e.target.value
+      const target = e.target as HTMLInputElement
+      state.configData.apiKey = target.value
     })
 
     apiKeyBtn.addEventListener('click', () => {
@@ -104,19 +109,19 @@ export const configurationScreen = {
     })
 
     // Set default values for checkboxes
-    const autocapture = document.getElementById('enable-autocapture')
-    const pageview = document.getElementById('capture-pageview')
+    const autocapture = document.getElementById('enable-autocapture') as HTMLInputElement
+    const pageview = document.getElementById('capture-pageview') as HTMLInputElement
     autocapture.checked = true
     pageview.checked = true
   },
 
-  canProceed(state) {
+  canProceed(state: InstallerState): boolean {
     // Project name is optional, so we can always proceed
     return true
   }
 }
 
-function showApiKeyDialog() {
+function showApiKeyDialog(): void {
   const dialog = document.createElement('div')
   dialog.className = 'dialog-overlay'
   dialog.innerHTML = `
@@ -147,7 +152,7 @@ function showApiKeyDialog() {
 
   document.body.appendChild(dialog)
 
-  document.getElementById('api-help-ok').addEventListener('click', () => {
+  document.getElementById('api-help-ok')!.addEventListener('click', () => {
     document.body.removeChild(dialog)
   })
 }

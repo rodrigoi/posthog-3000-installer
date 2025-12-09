@@ -1,7 +1,9 @@
 // Welcome screen
 
-export const welcomeScreen = {
-  render(state) {
+import type { Screen, InstallerState } from '../../types'
+
+export const welcomeScreen: Screen = {
+  render(state: InstallerState): HTMLElement {
     const screen = document.createElement('div')
     screen.className = 'screen welcome-screen'
     screen.innerHTML = `
@@ -39,7 +41,7 @@ export const welcomeScreen = {
     return screen
   },
 
-  canProceed(state) {
+  canProceed(state: InstallerState): boolean {
     return true
   }
 }
