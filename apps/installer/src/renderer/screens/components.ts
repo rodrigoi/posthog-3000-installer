@@ -62,13 +62,16 @@ export const componentsScreen: Screen = {
       <div class="components-list" id="components-list">
         ${COMPONENTS.map(component => `
           <div class="component-item">
-            <input
-              type="checkbox"
-              id="component-${component.id}"
-              value="${component.id}"
-              ${state.selectedComponents.includes(component.id) ? 'checked' : ''}
-              ${component.required ? 'disabled' : ''}
-            >
+            <div class="field-row">
+              <input
+                type="checkbox"
+                id="component-${component.id}"
+                value="${component.id}"
+                ${state.selectedComponents.includes(component.id) ? 'checked' : ''}
+                ${component.required ? 'disabled' : ''}
+              >
+              <label for="component-${component.id}"></label>
+            </div>
             <div class="component-info">
               <div class="component-name">${component.name}${component.required ? ' (Required)' : ''}</div>
               <div class="component-description">${component.description}</div>

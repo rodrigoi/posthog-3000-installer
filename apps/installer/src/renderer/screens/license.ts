@@ -42,14 +42,14 @@ ADDITIONAL TERMS:
       </textarea>
 
       <div class="license-options">
-        <label>
+        <div class="field-row">
           <input type="radio" name="license" value="accept" id="license-accept">
-          I <strong>accept</strong> the terms in the license agreement
-        </label>
-        <label>
+          <label for="license-accept">I <strong>accept</strong> the terms in the license agreement</label>
+        </div>
+        <div class="field-row">
           <input type="radio" name="license" value="decline" id="license-decline">
-          I <strong>do not accept</strong> the terms in the license agreement
-        </label>
+          <label for="license-decline">I <strong>do not accept</strong> the terms in the license agreement</label>
+        </div>
       </div>
 
       <p style="margin-top: 15px; font-size: 11px;">

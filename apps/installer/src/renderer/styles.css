@@ -179,6 +179,10 @@ body {
   gap: 8px;
 }
 
+.license-options .field-row {
+  margin: 0;
+}
+
 /* Directory screen */
 .directory-input-group {
   display: flex;
@@ -217,7 +221,7 @@ body {
   border: 1px solid #808080;
 }
 
-.component-item input[type="checkbox"] {
+.component-item .field-row {
   margin-right: 10px;
   margin-top: 2px;
 }
@@ -287,6 +291,10 @@ body {
   user-select: none;
 }
 
+.advanced-section .field-row {
+  margin: 8px 0;
+}
+
 /* Installing screen */
 .progress-container {
   margin: 20px 0;
@@ -334,17 +342,13 @@ body {
 
 .finish-options {
   margin: 20px 0;
-}
-
-.finish-options label {
   display: flex;
-  align-items: center;
-  margin: 10px 0;
-  cursor: pointer;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.finish-options input[type="checkbox"] {
-  margin-right: 8px;
+.finish-options .field-row {
+  margin: 0;
 }
 
 /* Dialog overlay */

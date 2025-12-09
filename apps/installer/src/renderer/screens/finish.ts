@@ -23,14 +23,14 @@ export const finishScreen: Screen = {
       </p>
 
       <div class="finish-options">
-        <label>
+        <div class="field-row">
           <input type="checkbox" id="launch-posthog" checked>
-          Launch PostHog 3000 now
-        </label>
-        <label>
+          <label for="launch-posthog">Launch PostHog 3000 now</label>
+        </div>
+        <div class="field-row">
           <input type="checkbox" id="view-readme">
-          View the README file
-        </label>
+          <label for="view-readme">View the README file</label>
+        </div>
       </div>
 
       <fieldset style="margin-top: 30px; padding: 10px;">

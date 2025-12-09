@@ -53,23 +53,17 @@ export const configurationScreen: Screen = {
         <details class="advanced-section">
           <summary>Advanced Settings</summary>
           <div style="margin-top: 10px;">
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="enable-autocapture">
-                Enable Autocapture
-              </label>
+            <div class="field-row">
+              <input type="checkbox" id="enable-autocapture">
+              <label for="enable-autocapture">Enable Autocapture</label>
             </div>
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="capture-pageview">
-                Capture Page Views
-              </label>
+            <div class="field-row">
+              <input type="checkbox" id="capture-pageview">
+              <label for="capture-pageview">Capture Page Views</label>
             </div>
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="enable-turbo" style="margin-right: 5px;">
-                Enable Turbo Mode (Y2K Compatible)
-              </label>
+            <div class="field-row">
+              <input type="checkbox" id="enable-turbo">
+              <label for="enable-turbo">Enable Turbo Mode (Y2K Compatible)</label>
             </div>
           </div>
         </details>
