@@ -5,7 +5,7 @@
 ## Structure
 
 - **apps/installer** - PostHog 3000 Installer (Windows 98 aesthetic)
-- **apps/app-2** - [Future: Second Electron app]
+- **apps/launcher** - PostHog 3000 Launcher (System tray app)
 - **packages/** - Shared packages (if needed)
 
 ## Quick Start
@@ -30,20 +30,34 @@ pnpm build:installer
 pnpm install
 ```
 
-### Run Installer App
+### Run Apps
 ```bash
+# Run installer app
 pnpm dev:installer
 # or
 pnpm --filter installer dev
+
+# Run launcher app
+pnpm dev:launcher
+# or
+pnpm --filter launcher dev
 ```
 
-### Build Installer
+### Build Apps
 ```bash
+# Build installer
 pnpm build:installer
 # or specific platform
 pnpm build:installer:mac
 pnpm build:installer:win
 pnpm build:installer:linux
+
+# Build launcher
+pnpm build:launcher
+# or specific platform
+pnpm build:launcher:mac
+pnpm build:launcher:win
+pnpm build:launcher:linux
 ```
 
 ### Run Commands Across All Apps
@@ -82,6 +96,32 @@ A nostalgic Windows 98 InstallShield installer experience with PostHog branding.
 - 98.css for Windows 98 aesthetic
 - Vite for building
 - electron-builder for packaging
+
+### PostHog 3000 Launcher
+
+A system tray application that runs in the background with Windows 98 styling.
+
+**Location:** `apps/launcher/`
+
+**Features:**
+- Lives in system tray/toolbar
+- Context menu with Quit option
+- About dialog with Windows 98 aesthetic
+- Minimal footprint - no main window
+- Cross-platform (macOS, Windows, Linux)
+
+**How it works:**
+- Runs silently in the system tray
+- Right-click (or click on macOS) to show menu
+- "About PostHog 3000..." shows version info
+- "Quit" exits the application
+- About dialog styled with 98.css matching the installer
+
+**Tech Stack:**
+- Electron + TypeScript
+- System Tray API
+- 98.css for About dialog
+- Vite for building
 
 ## Adding a New App
 
@@ -139,8 +179,16 @@ posthog-3000-installer/          # Root (monorepo)
 │   │   ├── tsconfig.json
 │   │   ├── tsconfig.node.json
 │   │   └── tsconfig.web.json
-│   └── app-2/                  # Second Electron app (placeholder)
-│       └── package.json
+│   └── launcher/               # PostHog 3000 Launcher
+│       ├── src/
+│       │   ├── main/           # System tray management
+│       │   ├── preload/        # Preload scripts
+│       │   └── renderer/       # About dialog
+│       ├── electron.vite.config.js
+│       ├── package.json
+│       ├── tsconfig.json
+│       ├── tsconfig.node.json
+│       └── tsconfig.web.json
 ├── packages/                    # Shared packages (optional)
 ├── pnpm-workspace.yaml         # Workspace configuration
 ├── package.json                # Root package.json

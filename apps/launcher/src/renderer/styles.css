@@ -1,0 +1,92 @@
+/* PostHog 3000 Launcher - About Window Styles */
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #c0c0c0;
+  font-family: 'MS Sans Serif', 'Microsoft Sans Serif', Arial, sans-serif;
+  overflow: hidden;
+}
+
+.about-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.window {
+  width: 100%;
+  max-width: 380px;
+}
+
+.window-body {
+  padding: 20px;
+}
+
+.about-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.about-logo {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px 30px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: inset -1px -1px 0 rgba(0, 0, 0, 0.3),
+              inset 1px 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.logo-text {
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.logo-version {
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  margin-top: 5px;
+}
+
+.about-info {
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.about-info p {
+  margin: 5px 0;
+}
+
+.about-footer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.ok-button {
+  min-width: 100px;
+  padding: 4px 20px;
+}
+
+/* Title bar controls */
+.title-bar-controls button {
+  min-width: 16px;
+  min-height: 14px;
+  padding: 0;
+}
+
+/* Ensure window is centered and sized correctly */
+html, body {
+  height: 100%;
+  width: 100%;
+}
