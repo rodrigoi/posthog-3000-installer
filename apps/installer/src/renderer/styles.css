@@ -37,7 +37,7 @@ body {
 /* Installer layout */
 .installer-layout {
   display: flex;
-  height: 100%;
+  flex: 1;
   overflow: hidden;
 }
 
