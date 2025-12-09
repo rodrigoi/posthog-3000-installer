@@ -105,28 +105,28 @@ Installation complete! Options to "Launch PostHog 3000 now" or "View README".
 ### Setup
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Start development server with hot reload
-npm run dev
+pnpm dev
 ```
 
 ### Building
 ```bash
 # Build for current platform
-npm run build
+pnpm build
 
 # Package for all platforms
-npm run build:all
+pnpm build:all
 ```
 
 ### Project Commands
-- `npm run dev` - Start development server
-- `npm run build` - Build production version
-- `npm run preview` - Preview production build
-- `npm run build:mac` - Build for macOS
-- `npm run build:win` - Build for Windows
-- `npm run build:linux` - Build for Linux
+- `pnpm dev` - Start development server
+- `pnpm build` - Build production version
+- `pnpm preview` - Preview production build
+- `pnpm build:mac` - Build for macOS
+- `pnpm build:win` - Build for Windows
+- `pnpm build:linux` - Build for Linux
 
 ## Key Technical Decisions
 
@@ -201,19 +201,19 @@ Classic Windows system fonts with fallbacks:
 
 ### macOS
 ```bash
-npm run build:mac
+pnpm build:mac
 ```
 Produces a DMG file in `dist/`
 
 ### Windows
 ```bash
-npm run build:win
+pnpm build:win
 ```
 Produces an NSIS installer in `dist/` (yes, an installer installer!)
 
 ### Linux
 ```bash
-npm run build:linux
+pnpm build:linux
 ```
 Produces an AppImage in `dist/`
 
