@@ -27,7 +27,7 @@ function createWindow(): void {
     resizable: true,
     frame: false, // Remove OS frame for fullscreen window look
     backgroundColor: "#c0c0c0", // Windows 98 gray
-    title: "PostHog 3000 Setup",
+    title: "PostHog 3000 Demo Setup",
     show: false, // Don't show until maximized
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),

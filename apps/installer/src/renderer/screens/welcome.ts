@@ -5,7 +5,7 @@ export const welcomeScreen: Screen = {
     const screen = document.createElement("div")
     screen.className = "screen welcome-screen"
     screen.innerHTML = `
-      <div class="welcome-title">Welcome to the PostHog 3000 Setup Wizard</div>
+      <div class="welcome-title">Welcome to the PostHog 3000 Demo Setup Wizard</div>
 
       <p class="welcome-text">
         This wizard will guide you through the installation of the <strong>PostHog 3000 Demo</strong>,

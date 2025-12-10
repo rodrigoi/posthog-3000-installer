@@ -8,7 +8,7 @@ export const finishScreen: Screen = {
       <div class="finish-icon">🏁</div>
 
       <div class="finish-message">
-        Completing the PostHog 3000 Setup Wizard
+        Completing the PostHog 3000 Demo Setup Wizard
       </div>
 
       <p>

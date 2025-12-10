@@ -197,7 +197,7 @@ function exitApp(): void {
     window.close()
   } else {
     // In browser, just show a message
-    alert("Thanks for trying PostHog 3000 Setup!")
+    alert("Thanks for trying PostHog 3000 Demo Setup!")
   }
 }
 

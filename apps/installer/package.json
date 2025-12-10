@@ -28,7 +28,7 @@
   },
   "build": {
     "appId": "com.posthog.installer3000",
-    "productName": "PostHog 3000 Setup",
+    "productName": "PostHog 3000 Demo Setup",
     "directories": {
       "output": "dist"
     },
@@ -55,7 +55,7 @@
       }
     ],
     "dmg": {
-      "title": "PostHog 3000 Setup",
+      "title": "PostHog 3000 Demo Setup",
       "background": null,
       "window": {
         "width": 540,
