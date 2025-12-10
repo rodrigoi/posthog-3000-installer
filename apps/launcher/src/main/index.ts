@@ -17,25 +17,31 @@ function createTray(): void {
     const iconPath = join(__dirname, "../../resources/icon.png");
     const loadedIcon = nativeImage.createFromPath(iconPath);
     if (!loadedIcon.isEmpty()) {
-      tray = new Tray(loadedIcon.resize({ width: 32, height: 32 }));
+      const resizedIcon = loadedIcon.resize({ width: 22, height: 22 });
+      // Mark as template image on macOS for proper menu bar rendering
+      resizedIcon.setTemplateImage(true);
+      tray = new Tray(resizedIcon);
     } else {
+      // Fallback: create a simple colored icon so it's visible
+      console.warn("Could not load icon from:", iconPath);
       tray = new Tray(icon);
     }
-  } catch {
+  } catch (err) {
+    console.error("Error loading tray icon:", err);
     tray = new Tray(icon);
   }
 
   // Create context menu
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: "PostHog 3000 Launcher",
+      label: "PostHog 3000 Demo",
       enabled: false,
     },
     {
       type: "separator",
     },
     {
-      label: "About PostHog 3000...",
+      label: "About PostHog 3000 Demo...",
       click: showAboutWindow,
     },
     {
@@ -49,7 +55,7 @@ function createTray(): void {
     },
   ]);
 
-  tray.setToolTip("PostHog 3000 Launcher");
+  tray.setToolTip("PostHog 3000 Demo");
   tray.setContextMenu(contextMenu);
 
   // On macOS, clicking the tray icon should show the menu
