@@ -1,9 +1,24 @@
-import { app, BrowserWindow, ipcMain } from "electron"
+import { app, BrowserWindow, ipcMain, nativeImage } from "electron"
 import { join } from "path"
 import { readdirSync, statSync, existsSync, readFileSync } from "fs"
 import { execSync } from "child_process"
 
 let mainWindow: BrowserWindow | null
+
+function setDockIcon(): void {
+  if (process.platform === "darwin" && app.dock) {
+    // In development, icon is in resources folder
+    // In production, it's in the app resources
+    const iconPath = app.isPackaged
+      ? join(process.resourcesPath, "icon.png")
+      : join(__dirname, "../../resources/icon.png")
+
+    if (existsSync(iconPath)) {
+      const icon = nativeImage.createFromPath(iconPath)
+      app.dock.setIcon(icon)
+    }
+  }
+}
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -51,6 +66,7 @@ function createWindow(): void {
 
 // This method will be called when Electron has finished initialization
 app.whenReady().then(() => {
+  setDockIcon()
   createWindow()
 
   app.on("activate", () => {
@@ -282,7 +298,8 @@ interface PKGInstallResult {
 ipcMain.handle("install-launcher", async (): Promise<LauncherInstallResult> => {
   try {
     // Get the resources path - in development and production
-    const resourcesPath = process.resourcesPath || join(__dirname, "../../../..")
+    const resourcesPath =
+      process.resourcesPath || join(__dirname, "../../../..")
     const launcherDmgDir = join(resourcesPath, "launcher")
 
     console.log("Looking for launcher DMG in:", launcherDmgDir)
@@ -291,16 +308,18 @@ ipcMain.handle("install-launcher", async (): Promise<LauncherInstallResult> => {
     if (!existsSync(launcherDmgDir)) {
       return {
         success: false,
-        error: "Launcher DMG directory not found"
+        error: "Launcher DMG directory not found",
       }
     }
 
-    const dmgFiles = readdirSync(launcherDmgDir).filter(f => f.endsWith('.dmg'))
+    const dmgFiles = readdirSync(launcherDmgDir).filter((f) =>
+      f.endsWith(".dmg")
+    )
 
     if (dmgFiles.length === 0) {
       return {
         success: false,
-        error: "Launcher DMG not found in resources"
+        error: "Launcher DMG not found in resources",
       }
     }
 
@@ -308,19 +327,23 @@ ipcMain.handle("install-launcher", async (): Promise<LauncherInstallResult> => {
     console.log("Found launcher DMG:", launcherDmgPath)
 
     // Mount the DMG
-    const mountOutput = execSync(`hdiutil attach "${launcherDmgPath}" -nobrowse`, {
-      encoding: 'utf-8'
-    })
+    const mountOutput = execSync(
+      `hdiutil attach "${launcherDmgPath}" -nobrowse`,
+      {
+        encoding: "utf-8",
+      }
+    )
 
     // Extract mount point
-    const mountPoint = mountOutput.split('\n')
-      .filter(line => line.includes('/Volumes/'))
-      .map(line => line.match(/\/Volumes\/.+/)?.[0])[0]
+    const mountPoint = mountOutput
+      .split("\n")
+      .filter((line) => line.includes("/Volumes/"))
+      .map((line) => line.match(/\/Volumes\/.+/)?.[0])[0]
 
     if (!mountPoint) {
       return {
         success: false,
-        error: "Failed to mount launcher DMG"
+        error: "Failed to mount launcher DMG",
       }
     }
 
@@ -328,18 +351,18 @@ ipcMain.handle("install-launcher", async (): Promise<LauncherInstallResult> => {
 
     // Find the launcher app
     const mountedFiles = readdirSync(mountPoint)
-    const launcherApp = mountedFiles.find(f => f.endsWith('.app'))
+    const launcherApp = mountedFiles.find((f) => f.endsWith(".app"))
 
     if (!launcherApp) {
       execSync(`hdiutil detach "${mountPoint}"`)
       return {
         success: false,
-        error: "Launcher app not found in DMG"
+        error: "Launcher app not found in DMG",
       }
     }
 
     const sourcePath = join(mountPoint, launcherApp)
-    const destPath = join('/Applications', launcherApp)
+    const destPath = join("/Applications", launcherApp)
 
     console.log("Installing launcher from:", sourcePath)
     console.log("To:", destPath)
@@ -347,7 +370,7 @@ ipcMain.handle("install-launcher", async (): Promise<LauncherInstallResult> => {
     // Copy the launcher to Applications
     // Use ditto to preserve all attributes and handle existing files
     execSync(`ditto "${sourcePath}" "${destPath}"`, {
-      encoding: 'utf-8'
+      encoding: "utf-8",
     })
 
     // Unmount the DMG
@@ -357,108 +380,117 @@ ipcMain.handle("install-launcher", async (): Promise<LauncherInstallResult> => {
 
     return {
       success: true,
-      launcherPath: destPath
+      launcherPath: destPath,
     }
-
   } catch (error) {
     console.error("Error installing launcher:", error)
     return {
       success: false,
-      error: `Failed to install launcher: ${error}`
+      error: `Failed to install launcher: ${error}`,
     }
   }
 })
 
 // Copy tar parts from currently mounted DVD to temp directory
-ipcMain.handle("copy-tar-parts-from-disc", async (): Promise<{success: boolean, partsCopied: number, error?: string}> => {
-  try {
-    const tarParts = await findTarPartsOnDVDs()
+ipcMain.handle(
+  "copy-tar-parts-from-disc",
+  async (): Promise<{
+    success: boolean
+    partsCopied: number
+    error?: string
+  }> => {
+    try {
+      const tarParts = await findTarPartsOnDVDs()
 
-    if (tarParts.length === 0) {
-      return { success: true, partsCopied: 0 }
-    }
-
-    const tempDir = join(app.getPath('temp'), 'posthog-install')
-    if (!existsSync(tempDir)) {
-      execSync(`mkdir -p "${tempDir}"`)
-    }
-
-    let copied = 0
-    for (const part of tarParts) {
-      const filename = part.split('/').pop()!
-      const destPath = join(tempDir, filename)
-
-      // Skip if already copied
-      if (existsSync(destPath)) {
-        console.log(`Already have ${filename}, skipping`)
-        continue
+      if (tarParts.length === 0) {
+        return { success: true, partsCopied: 0 }
       }
 
-      console.log(`Copying ${filename} to temp...`)
-      execSync(`cp "${part}" "${destPath}"`)
-      copied++
-    }
+      const tempDir = join(app.getPath("temp"), "posthog-install")
+      if (!existsSync(tempDir)) {
+        execSync(`mkdir -p "${tempDir}"`)
+      }
 
-    console.log(`Copied ${copied} tar parts to ${tempDir}`)
-    return { success: true, partsCopied: copied }
+      let copied = 0
+      for (const part of tarParts) {
+        const filename = part.split("/").pop()!
+        const destPath = join(tempDir, filename)
 
-  } catch (error) {
-    console.error("Error copying tar parts:", error)
-    return {
-      success: false,
-      partsCopied: 0,
-      error: `Failed to copy tar parts: ${error}`
+        // Skip if already copied
+        if (existsSync(destPath)) {
+          console.log(`Already have ${filename}, skipping`)
+          continue
+        }
+
+        console.log(`Copying ${filename} to temp...`)
+        execSync(`cp "${part}" "${destPath}"`)
+        copied++
+      }
+
+      console.log(`Copied ${copied} tar parts to ${tempDir}`)
+      return { success: true, partsCopied: copied }
+    } catch (error) {
+      console.error("Error copying tar parts:", error)
+      return {
+        success: false,
+        partsCopied: 0,
+        error: `Failed to copy tar parts: ${error}`,
+      }
     }
   }
-})
+)
 
 // Install PostHogStack PKG from collected tar parts or bundled PKG
 ipcMain.handle("install-pkg", async (): Promise<PKGInstallResult> => {
   try {
     let pkgPath: string
-    const tempDir = join(app.getPath('temp'), 'posthog-install')
+    const tempDir = join(app.getPath("temp"), "posthog-install")
 
     // Check if we have collected tar parts in temp directory
     if (existsSync(tempDir)) {
       const tempFiles = readdirSync(tempDir)
-      const tarParts = tempFiles.filter(f => f.startsWith('PostHogStack.tar.')).sort()
+      const tarParts = tempFiles
+        .filter((f) => f.startsWith("PostHogStack.tar."))
+        .sort()
 
       if (tarParts.length > 0) {
         console.log(`Found ${tarParts.length} tar parts in temp directory`)
 
-        const reassembledTar = join(tempDir, 'PostHogStack.tar')
-        const extractedPkg = join(tempDir, 'PostHogStack.pkg')
+        const reassembledTar = join(tempDir, "PostHogStack.tar")
+        const extractedPkg = join(tempDir, "PostHogStack.pkg")
 
         // Concatenate tar parts
         console.log("Reassembling tar parts…")
-        const partPaths = tarParts.map(p => join(tempDir, p))
-        const catCmd = partPaths.map(p => `"${p}"`).join(' ')
+        const partPaths = tarParts.map((p) => join(tempDir, p))
+        const catCmd = partPaths.map((p) => `"${p}"`).join(" ")
         execSync(`cat ${catCmd} > "${reassembledTar}"`, {
-          encoding: 'utf-8'
+          encoding: "utf-8",
         })
 
         // Extract PKG from tar
         console.log("Extracting PKG from tar…")
         execSync(`cd "${tempDir}" && tar xf "${reassembledTar}"`, {
-          encoding: 'utf-8'
+          encoding: "utf-8",
         })
 
         pkgPath = extractedPkg
       } else {
         // No tar parts, fall back to bundled
-        const resourcesPath = process.resourcesPath || join(__dirname, "../../../..")
+        const resourcesPath =
+          process.resourcesPath || join(__dirname, "../../../..")
         pkgPath = join(resourcesPath, "PostHogStack.pkg")
       }
     } else {
       // No temp dir, fall back to bundled
-      const resourcesPath = process.resourcesPath || join(__dirname, "../../../..")
+      const resourcesPath =
+        process.resourcesPath || join(__dirname, "../../../..")
       pkgPath = join(resourcesPath, "PostHogStack.pkg")
     }
 
     if (!existsSync(pkgPath)) {
       return {
         success: false,
-        error: "PostHogStack.pkg not found"
+        error: "PostHogStack.pkg not found",
       }
     }
 
@@ -471,38 +503,39 @@ ipcMain.handle("install-pkg", async (): Promise<PKGInstallResult> => {
 
     try {
       execSync(`osascript -e '${appleScript.replace(/'/g, "'\\''")}'`, {
-        encoding: 'utf-8',
-        stdio: 'pipe'
+        encoding: "utf-8",
+        stdio: "pipe",
       })
 
       console.log("PostHogStack.pkg installed successfully")
 
       return {
         success: true,
-        message: "PostHogStack installed successfully"
+        message: "PostHogStack installed successfully",
       }
-
     } catch (installError: any) {
       // Check if user cancelled
-      if (installError.message && installError.message.includes('User canceled')) {
+      if (
+        installError.message &&
+        installError.message.includes("User canceled")
+      ) {
         return {
           success: false,
-          error: "Installation cancelled by user"
+          error: "Installation cancelled by user",
         }
       }
 
       console.error("PKG installation error:", installError)
       return {
         success: false,
-        error: `Failed to install PKG: ${installError.message || installError}`
+        error: `Failed to install PKG: ${installError.message || installError}`,
       }
     }
-
   } catch (error) {
     console.error("Error installing PKG:", error)
     return {
       success: false,
-      error: `Failed to install PostHogStack: ${error}`
+      error: `Failed to install PostHogStack: ${error}`,
     }
   }
 })
@@ -532,8 +565,7 @@ async function findTarPartsOnDVDs(): Promise<string[]> {
       }
     }
 
-    return tarParts.sort()  // Ensure parts are in order
-
+    return tarParts.sort() // Ensure parts are in order
   } catch (error) {
     console.error("Error finding tar parts:", error)
     return []
@@ -541,77 +573,83 @@ async function findTarPartsOnDVDs(): Promise<string[]> {
 }
 
 // Get missing DVD numbers based on tar parts and disc_info
-ipcMain.handle("get-missing-dvds", async (): Promise<{missing: number[], total: number}> => {
-  try {
-    const volumesPath = "/Volumes"
-    const volumes = readdirSync(volumesPath)
+ipcMain.handle(
+  "get-missing-dvds",
+  async (): Promise<{ missing: number[]; total: number }> => {
+    try {
+      const volumesPath = "/Volumes"
+      const volumes = readdirSync(volumesPath)
 
-    // Find all PostHog DVDs and their disc numbers
-    const foundDiscs = new Set<number>()
-    let totalDiscs = 0
+      // Find all PostHog DVDs and their disc numbers
+      const foundDiscs = new Set<number>()
+      let totalDiscs = 0
 
-    for (const volume of volumes) {
-      if (volume.startsWith(".")) continue
+      for (const volume of volumes) {
+        if (volume.startsWith(".")) continue
 
-      const volumePath = join(volumesPath, volume)
-      const discInfoPath = join(volumePath, ".disc_info")
+        const volumePath = join(volumesPath, volume)
+        const discInfoPath = join(volumePath, ".disc_info")
 
-      if (existsSync(discInfoPath)) {
-        try {
-          const content = readFileSync(discInfoPath, 'utf-8')
+        if (existsSync(discInfoPath)) {
+          try {
+            const content = readFileSync(discInfoPath, "utf-8")
 
-          // Get disc number
-          const discMatch = content.match(/disc_number=(\d+)/)
-          if (discMatch) {
-            foundDiscs.add(parseInt(discMatch[1], 10))
-          }
+            // Get disc number
+            const discMatch = content.match(/disc_number=(\d+)/)
+            if (discMatch) {
+              foundDiscs.add(parseInt(discMatch[1], 10))
+            }
 
-          // Get total discs
-          const totalMatch = content.match(/total_discs=(\d+)/)
-          if (totalMatch) {
-            totalDiscs = Math.max(totalDiscs, parseInt(totalMatch[1], 10))
-          }
-        } catch (err) {
-          console.error(`Error reading disc_info from ${volume}:`, err)
-        }
-      }
-    }
-
-    // If no disc info found, check if we have tar parts (fallback)
-    if (totalDiscs === 0) {
-      const tarParts = await findTarPartsOnDVDs()
-      if (tarParts.length > 0) {
-        // Estimate based on tar part suffixes
-        const suffixes = new Set<string>()
-        for (const part of tarParts) {
-          const match = part.match(/PostHogStack\.tar\.([a-z]+)/)
-          if (match) {
-            suffixes.add(match[1])
+            // Get total discs
+            const totalMatch = content.match(/total_discs=(\d+)/)
+            if (totalMatch) {
+              totalDiscs = Math.max(totalDiscs, parseInt(totalMatch[1], 10))
+            }
+          } catch (err) {
+            console.error(`Error reading disc_info from ${volume}:`, err)
           }
         }
-        // Rough estimate: 2 parts per disc
-        totalDiscs = Math.ceil(suffixes.size / 2) || 1
-        foundDiscs.add(1) // Assume at least disc 1 is present
       }
-    }
 
-    // Calculate missing discs
-    const missing: number[] = []
-    for (let i = 1; i <= totalDiscs; i++) {
-      if (!foundDiscs.has(i)) {
-        missing.push(i)
+      // If no disc info found, check if we have tar parts (fallback)
+      if (totalDiscs === 0) {
+        const tarParts = await findTarPartsOnDVDs()
+        if (tarParts.length > 0) {
+          // Estimate based on tar part suffixes
+          const suffixes = new Set<string>()
+          for (const part of tarParts) {
+            const match = part.match(/PostHogStack\.tar\.([a-z]+)/)
+            if (match) {
+              suffixes.add(match[1])
+            }
+          }
+          // Rough estimate: 2 parts per disc
+          totalDiscs = Math.ceil(suffixes.size / 2) || 1
+          foundDiscs.add(1) // Assume at least disc 1 is present
+        }
       }
+
+      // Calculate missing discs
+      const missing: number[] = []
+      for (let i = 1; i <= totalDiscs; i++) {
+        if (!foundDiscs.has(i)) {
+          missing.push(i)
+        }
+      }
+
+      console.log(
+        `DVD Check: Found discs ${Array.from(
+          foundDiscs
+        ).sort()}, Total: ${totalDiscs}, Missing: ${missing}`
+      )
+
+      return {
+        missing,
+        total: totalDiscs,
+      }
+    } catch (error) {
+      console.error("Error checking missing DVDs:", error)
+      return { missing: [], total: 0 }
     }
-
-    console.log(`DVD Check: Found discs ${Array.from(foundDiscs).sort()}, Total: ${totalDiscs}, Missing: ${missing}`)
-
-    return {
-      missing,
-      total: totalDiscs
-    }
-
-  } catch (error) {
-    console.error("Error checking missing DVDs:", error)
-    return { missing: [], total: 0 }
   }
-})
+)

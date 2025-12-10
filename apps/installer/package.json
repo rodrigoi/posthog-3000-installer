@@ -38,13 +38,22 @@
     ],
     "mac": {
       "category": "public.app-category.developer-tools",
+      "icon": "resources/icon.png",
       "target": [
         {
           "target": "dmg",
-          "arch": ["arm64"]
+          "arch": [
+            "arm64"
+          ]
         }
       ]
     },
+    "extraResources": [
+      {
+        "from": "resources/icon.png",
+        "to": "icon.png"
+      }
+    ],
     "dmg": {
       "title": "PostHog 3000 Setup",
       "background": null,
