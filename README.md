@@ -1,244 +1,138 @@
-# PostHog 3000 Apps Monorepo
+# PostHog 3000 Apps
 
-> A pnpm workspace monorepo containing multiple Electron applications for PostHog
-
-## Structure
-
-- **apps/installer** - PostHog 3000 Installer (Windows 98 aesthetic)
-- **apps/launcher** - PostHog 3000 Launcher (System tray app)
-- **packages/** - Shared packages (if needed)
-
-## Quick Start
-
-```bash
-# Install all dependencies
-pnpm install
-
-# Run installer app
-pnpm dev:installer
-# or
-pnpm dev
-
-# Build installer
-pnpm build:installer
-```
-
-## Development
-
-### Install Dependencies
-```bash
-pnpm install
-```
-
-### Run Apps
-```bash
-# Run installer app
-pnpm dev:installer
-# or
-pnpm --filter installer dev
-
-# Run launcher app
-pnpm dev:launcher
-# or
-pnpm --filter launcher dev
-```
-
-### Build Apps
-```bash
-# Build installer
-pnpm build:installer
-# or specific platform
-pnpm build:installer:mac
-pnpm build:installer:win
-pnpm build:installer:linux
-
-# Build launcher
-pnpm build:launcher
-# or specific platform
-pnpm build:launcher:mac
-pnpm build:launcher:win
-pnpm build:launcher:linux
-```
-
-### Run Commands Across All Apps
-```bash
-pnpm -r typecheck    # Type check all packages
-pnpm -r build        # Build all packages
-```
+> A pnpm workspace monorepo containing Electron apps with Windows 98 aesthetic
 
 ## Apps
 
-### PostHog 3000 Installer
+| App           | Description                                  | Location          |
+| ------------- | -------------------------------------------- | ----------------- |
+| **Installer** | Classic InstallShield-style wizard installer | `apps/installer/` |
+| **Launcher**  | System tray app that runs in the background  | `apps/launcher/`  |
 
-A nostalgic Windows 98 InstallShield installer experience with PostHog branding.
+### Installer
 
-**Location:** `apps/installer/`
+A nostalgic Windows 98 InstallShield experience with PostHog branding.
 
-**Features:**
-- Classic Windows 98 InstallShield aesthetic using [98.css](https://github.com/jdan/98.css)
-- Wizard-style installation flow with 7 screens
-- PostHog-themed components and configuration
+- Wizard-style flow: Welcome → License → Directory → Components → Config → Progress → Finish
 - Fake installation progress with retro file names
-- Cross-platform (macOS, Windows, Linux)
 - Easter eggs and nostalgic touches
 
-**Installation Screens:**
-1. **Welcome** - PostHog 3000 Setup Wizard
-2. **License Agreement** - MIT license acceptance
-3. **Directory Selection** - Choose installation path
-4. **Component Selection** - Select PostHog features
-5. **Configuration** - Project settings and API key
-6. **Installation Progress** - Watch fake files install
-7. **Finish** - Complete with launch options
+### Launcher
 
-**Tech Stack:**
-- Electron + TypeScript
-- 98.css for Windows 98 aesthetic
-- Vite for building
-- electron-builder for packaging
+A minimal system tray application.
 
-### PostHog 3000 Launcher
-
-A system tray application that runs in the background with Windows 98 styling.
-
-**Location:** `apps/launcher/`
-
-**Features:**
 - Lives in system tray/toolbar
-- Context menu with Quit option
-- About dialog with Windows 98 aesthetic
-- Minimal footprint - no main window
-- Cross-platform (macOS, Windows, Linux)
+- Right-click menu with About dialog and Quit
+- About dialog styled with 98.css
 
-**How it works:**
-- Runs silently in the system tray
-- Right-click (or click on macOS) to show menu
-- "About PostHog 3000..." shows version info
-- "Quit" exits the application
-- About dialog styled with 98.css matching the installer
+## Development
 
-**Tech Stack:**
-- Electron + TypeScript
-- System Tray API
-- 98.css for About dialog
-- Vite for building
+### Prerequisites
 
-## Adding a New App
+- [Node.js](https://nodejs.org/) (v18+)
+- [pnpm](https://pnpm.io/) (v8+)
 
-1. Create `apps/new-app/` directory
-2. Add `package.json` with unique name
-3. Copy Electron structure from `apps/installer`
-4. Add scripts to root `package.json`:
-   ```json
-   {
-     "scripts": {
-       "dev:new-app": "pnpm --filter new-app dev",
-       "build:new-app": "pnpm --filter new-app build"
-     }
-   }
-   ```
+### Setup
 
-## Monorepo Commands
-
-### Workspace Filtering
 ```bash
-# Run command in specific app
-pnpm --filter installer dev
-pnpm --filter app-2 build
+# Clone the repo
+git clone https://github.com/PostHog/posthog-3000-installer.git
+cd posthog-3000-installer
 
-# Run command in all packages
-pnpm -r build
-pnpm -r typecheck
+# Install dependencies
+pnpm install
 ```
 
-### Managing Dependencies
+### Running Locally
+
 ```bash
+# Run the installer app (with hot reload)
+pnpm dev:installer
+
+# Run the launcher app (with hot reload)
+pnpm dev:launcher
+```
+
+The apps run in development mode with Vite's hot module replacement. Changes to renderer code will hot reload; changes to main process code will restart Electron.
+
+### Building
+
+```bash
+# Build for current platform
+pnpm build:installer
+pnpm build:launcher
+
+# Build for specific platform
+pnpm build:installer:mac
+pnpm build:installer:win
+pnpm build:installer:linux
+```
+
+Built apps are output to `apps/<app-name>/dist/`.
+
+## Project Structure
+
+```
+posthog-3000-installer/
+├── apps/
+│   ├── installer/
+│   │   └── src/
+│   │       ├── main/       # Electron main process
+│   │       ├── preload/    # Preload scripts
+│   │       ├── renderer/   # UI (screens, styles)
+│   │       └── types/      # TypeScript types
+│   └── launcher/
+│       └── src/
+│           ├── main/       # System tray management
+│           ├── preload/    # Preload scripts
+│           └── renderer/   # About dialog
+├── packages/               # Shared packages (if needed)
+├── pnpm-workspace.yaml
+└── package.json
+```
+
+## Tech Stack
+
+- **Electron** + TypeScript
+- **98.css** for Windows 98 aesthetic
+- **Vite** for building
+- **electron-builder** for packaging
+
+## Workspace Commands
+
+```bash
+# Run command in specific app
+pnpm --filter installer <command>
+pnpm --filter launcher <command>
+
+# Run command in all packages
+pnpm -r typecheck
+pnpm -r build
+
 # Add dependency to specific app
 pnpm --filter installer add some-package
 
 # Add dev dependency to root
 pnpm add -D -w some-dev-tool
-
-# Install all dependencies
-pnpm install
 ```
 
-## Project Structure
+## Adding a New App
 
-```
-posthog-3000-installer/          # Root (monorepo)
-├── apps/
-│   ├── installer/               # PostHog 3000 Installer
-│   │   ├── src/
-│   │   │   ├── main/           # Electron main process
-│   │   │   ├── preload/        # Preload scripts
-│   │   │   ├── renderer/       # Renderer process (UI)
-│   │   │   └── types/          # TypeScript types
-│   │   ├── electron.vite.config.js
-│   │   ├── package.json
-│   │   ├── tsconfig.json
-│   │   ├── tsconfig.node.json
-│   │   └── tsconfig.web.json
-│   └── launcher/               # PostHog 3000 Launcher
-│       ├── src/
-│       │   ├── main/           # System tray management
-│       │   ├── preload/        # Preload scripts
-│       │   └── renderer/       # About dialog
-│       ├── electron.vite.config.js
-│       ├── package.json
-│       ├── tsconfig.json
-│       ├── tsconfig.node.json
-│       └── tsconfig.web.json
-├── packages/                    # Shared packages (optional)
-├── pnpm-workspace.yaml         # Workspace configuration
-├── package.json                # Root package.json
-├── tsconfig.json               # Base TypeScript config
-└── README.md
-```
+1. Create `apps/new-app/` directory
+2. Add `package.json` with unique name
+3. Copy Electron structure from existing app
+4. Add scripts to root `package.json`
 
-## Building for Distribution
+## Credits
 
-### macOS
-```bash
-pnpm build:installer:mac
-```
-Produces a DMG file in `apps/installer/dist/`
-
-### Windows
-```bash
-pnpm build:installer:win
-```
-Produces an NSIS installer in `apps/installer/dist/`
-
-### Linux
-```bash
-pnpm build:installer:linux
-```
-Produces an AppImage in `apps/installer/dist/`
-
-## TypeScript Configuration
-
-The monorepo uses a shared base TypeScript configuration:
-
-- **Root `tsconfig.json`** - Base config with common compiler options
-- **`apps/installer/tsconfig.node.json`** - Main/preload processes (Node environment)
-- **`apps/installer/tsconfig.web.json`** - Renderer process (DOM environment)
-
-Each app extends the root configuration and adds its own specific settings.
-
-## Credits & Inspiration
-
-- [98.css](https://github.com/jdan/98.css) by [@jdan](https://github.com/jdan) - The amazing CSS library
-- InstallShield and Inno Setup - Classic installer tools
-- PostHog - The best analytics platform for engineers
+- [98.css](https://github.com/jdan/98.css) by [@jdan](https://github.com/jdan)
+- InstallShield and Inno Setup for inspiration
 - Windows 98 - Peak aesthetic computing
 
 ## License
 
-MIT License - See LICENSE file for details
+MIT License - See LICENSE file
 
 ---
 
-**Made with 💾 and ✨ by the PostHog community**
-
-*"Installing software has never been this nostalgic!"*
+**Made with 💾 and 🧉 by the PostHog team in Buenos Aires 🇦🇷**
