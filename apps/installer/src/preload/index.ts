@@ -21,6 +21,10 @@ const electronAPI: ElectronAPI = {
   },
 
   // Launcher installation
+  copyLauncherToTemp: (): Promise<{success: boolean, error?: string, message?: string}> => {
+    return ipcRenderer.invoke('copy-launcher-to-temp')
+  },
+
   installLauncher: (): Promise<LauncherInstallResult> => {
     return ipcRenderer.invoke('install-launcher')
   },
@@ -38,6 +42,16 @@ const electronAPI: ElectronAPI = {
   // Copy tar parts from current disc
   copyTarPartsFromDisc: (): Promise<{success: boolean, partsCopied: number, error?: string}> => {
     return ipcRenderer.invoke('copy-tar-parts-from-disc')
+  },
+
+  // Launch PostHog Launcher app
+  launchPostHog: (): Promise<{success: boolean, error?: string}> => {
+    return ipcRenderer.invoke('launch-posthog')
+  },
+
+  // Quit the installer app
+  quitApp: (): Promise<void> => {
+    return ipcRenderer.invoke('quit-app')
   }
 }
 

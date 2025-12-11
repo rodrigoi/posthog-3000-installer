@@ -70,18 +70,29 @@ export const finishScreen: Screen = {
     return true
   },
 
-  onNext(): void {
+  async onNext(): Promise<void> {
     // This will close the app via the Finish button
     const launchCheckbox = document.getElementById(
       "launch-posthog"
     ) as HTMLInputElement | null
-    const readmeCheckbox = document.getElementById(
-      "view-readme"
-    ) as HTMLInputElement | null
 
-    if (launchCheckbox?.checked || readmeCheckbox?.checked) {
-      // In a real app, we'd launch PostHog or open the README
-      console.log("Would launch PostHog or open README here")
+    if (launchCheckbox?.checked) {
+      // Launch the PostHog launcher app
+      console.log("Launching PostHog 3000 Launcher...")
+
+      if (window.electronAPI?.launchPostHog) {
+        try {
+          const result = await window.electronAPI.launchPostHog()
+          if (!result.success) {
+            console.error("Failed to launch PostHog:", result.error)
+          } else {
+            // Give the launcher a moment to start before closing
+            await new Promise(resolve => setTimeout(resolve, 500))
+          }
+        } catch (err) {
+          console.error("Error launching PostHog:", err)
+        }
+      }
     }
   },
 }

@@ -12,7 +12,7 @@
     "build:all": "pnpm -r build",
     "dev:installer": "pnpm --filter installer dev",
     "build:installer": "pnpm --filter installer build",
-    "build:installer:mac": "pnpm --filter installer build:mac",
+    "build:installer:mac": "pnpm run build:launcher:mac && pnpm --filter installer build:mac",
     "build:installer:win": "pnpm --filter installer build:win",
     "build:installer:linux": "pnpm --filter installer build:linux",
     "dev:launcher": "pnpm --filter launcher dev",

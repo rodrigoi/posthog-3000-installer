@@ -41,6 +41,7 @@ export interface ElectronAPI {
   checkDVDFile: (drivePath: string, fileName: string) => Promise<FileCheckResult>
 
   // Launcher installation
+  copyLauncherToTemp: () => Promise<{success: boolean, error?: string, message?: string}>
   installLauncher: () => Promise<LauncherInstallResult>
 
   // PKG installation
@@ -51,6 +52,12 @@ export interface ElectronAPI {
 
   // Copy tar parts from current disc
   copyTarPartsFromDisc: () => Promise<{success: boolean, partsCopied: number, error?: string}>
+
+  // Launch PostHog Launcher app
+  launchPostHog: () => Promise<{success: boolean, error?: string}>
+
+  // Quit the installer app
+  quitApp: () => Promise<void>
 }
 
 declare global {

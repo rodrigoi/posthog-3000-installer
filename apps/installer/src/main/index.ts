@@ -50,8 +50,6 @@ function createWindow(): void {
     // The renderer files are in app.asar/dist/
     const rendererPath = join(__dirname, "../../dist/index.html")
     mainWindow.loadFile(rendererPath)
-    // Open DevTools in production builds too for debugging
-    mainWindow.webContents.openDevTools()
   }
 
   // Prevent navigation away from app
@@ -287,6 +285,12 @@ interface LauncherInstallResult {
   launcherPath?: string
 }
 
+interface LauncherCopyResult {
+  success: boolean
+  error?: string
+  message?: string
+}
+
 // PKG Installation Types
 interface PKGInstallResult {
   success: boolean
@@ -294,87 +298,125 @@ interface PKGInstallResult {
   message?: string
 }
 
-// Install launcher app
-ipcMain.handle("install-launcher", async (): Promise<LauncherInstallResult> => {
+// Copy launcher from DVD to temp directory (call this early when DVD 1 is mounted)
+ipcMain.handle("copy-launcher-to-temp", async (): Promise<LauncherCopyResult> => {
   try {
-    // Get the resources path - in development and production
-    const resourcesPath =
-      process.resourcesPath || join(__dirname, "../../../..")
-    const launcherDmgDir = join(resourcesPath, "launcher")
+    // Find the launcher on the DVD/ISO volumes
+    const volumesPath = "/Volumes"
+    const volumes = readdirSync(volumesPath)
 
-    console.log("Looking for launcher DMG in:", launcherDmgDir)
+    let launcherSourcePath: string | null = null
 
-    // Find the launcher DMG
-    if (!existsSync(launcherDmgDir)) {
-      return {
-        success: false,
-        error: "Launcher DMG directory not found",
+    console.log("Searching for launcher on mounted volumes...")
+
+    for (const volume of volumes) {
+      if (volume.startsWith(".")) continue
+
+      const volumePath = join(volumesPath, volume)
+      const launcherDir = join(volumePath, "launcher")
+
+      console.log("Checking volume:", volumePath)
+
+      if (existsSync(launcherDir)) {
+        const files = readdirSync(launcherDir)
+        const launcherApp = files.find((f) => f.endsWith(".app"))
+
+        if (launcherApp) {
+          launcherSourcePath = join(launcherDir, launcherApp)
+          console.log("Found launcher on DVD:", launcherSourcePath)
+          break
+        }
       }
     }
 
-    const dmgFiles = readdirSync(launcherDmgDir).filter((f) =>
-      f.endsWith(".dmg")
-    )
-
-    if (dmgFiles.length === 0) {
+    if (!launcherSourcePath) {
       return {
         success: false,
-        error: "Launcher DMG not found in resources",
+        error: "Launcher app not found on any mounted volume. Please ensure DVD 1 is inserted.",
       }
     }
 
-    const launcherDmgPath = join(launcherDmgDir, dmgFiles[0])
-    console.log("Found launcher DMG:", launcherDmgPath)
+    const launcherAppName = launcherSourcePath.split("/").pop()!
 
-    // Mount the DMG
-    const mountOutput = execSync(
-      `hdiutil attach "${launcherDmgPath}" -nobrowse`,
-      {
-        encoding: "utf-8",
-      }
-    )
-
-    // Extract mount point
-    const mountPoint = mountOutput
-      .split("\n")
-      .filter((line) => line.includes("/Volumes/"))
-      .map((line) => line.match(/\/Volumes\/.+/)?.[0])[0]
-
-    if (!mountPoint) {
-      return {
-        success: false,
-        error: "Failed to mount launcher DMG",
-      }
+    // Copy launcher to temp directory (so it works after DVD is ejected)
+    const tempDir = join(app.getPath("temp"), "posthog-launcher-install")
+    if (!existsSync(tempDir)) {
+      execSync(`mkdir -p "${tempDir}"`)
     }
 
-    console.log("Mounted at:", mountPoint)
+    const tempLauncherPath = join(tempDir, launcherAppName)
 
-    // Find the launcher app
-    const mountedFiles = readdirSync(mountPoint)
-    const launcherApp = mountedFiles.find((f) => f.endsWith(".app"))
-
-    if (!launcherApp) {
-      execSync(`hdiutil detach "${mountPoint}"`)
-      return {
-        success: false,
-        error: "Launcher app not found in DMG",
-      }
-    }
-
-    const sourcePath = join(mountPoint, launcherApp)
-    const destPath = join("/Applications", launcherApp)
-
-    console.log("Installing launcher from:", sourcePath)
-    console.log("To:", destPath)
-
-    // Copy the launcher to Applications
-    // Use ditto to preserve all attributes and handle existing files
-    execSync(`ditto "${sourcePath}" "${destPath}"`, {
+    console.log("Copying launcher to temp directory:", tempLauncherPath)
+    execSync(`ditto "${launcherSourcePath}" "${tempLauncherPath}"`, {
       encoding: "utf-8",
     })
 
-    // Unmount the DMG
-    execSync(`hdiutil detach "${mountPoint}"`)
+    console.log("Launcher copied to temp successfully")
+
+    return {
+      success: true,
+      message: `Launcher copied to temp: ${tempLauncherPath}`,
+    }
+  } catch (error) {
+    console.error("Error copying launcher to temp:", error)
+    return {
+      success: false,
+      error: `Failed to copy launcher: ${error}`,
+    }
+  }
+})
+
+// Install launcher app from temp directory
+ipcMain.handle("install-launcher", async (): Promise<LauncherInstallResult> => {
+  try {
+    const tempDir = join(app.getPath("temp"), "posthog-launcher-install")
+
+    console.log("Looking for launcher in temp directory:", tempDir)
+
+    if (!existsSync(tempDir)) {
+      return {
+        success: false,
+        error: `Launcher temp directory not found: ${tempDir}. Please ensure DVD 1 was mounted during initial setup.`,
+      }
+    }
+
+    // Find the launcher app in temp
+    const tempFiles = readdirSync(tempDir)
+    console.log("Files in temp directory:", tempFiles)
+
+    const launcherApp = tempFiles.find((f) => f.endsWith(".app"))
+
+    if (!launcherApp) {
+      return {
+        success: false,
+        error: `Launcher app not found in temp directory. Found files: ${tempFiles.join(", ")}`,
+      }
+    }
+
+    const tempLauncherPath = join(tempDir, launcherApp)
+    const destPath = join("/Applications", launcherApp)
+
+    console.log("Installing launcher from temp to Applications:", destPath)
+    console.log("Source path:", tempLauncherPath)
+
+    // Verify source exists before copying
+    if (!existsSync(tempLauncherPath)) {
+      return {
+        success: false,
+        error: `Launcher source path does not exist: ${tempLauncherPath}`,
+      }
+    }
+
+    execSync(`ditto "${tempLauncherPath}" "${destPath}"`, {
+      encoding: "utf-8",
+    })
+
+    // Clean up temp directory
+    try {
+      execSync(`rm -rf "${tempDir}"`)
+    } catch {
+      // Ignore cleanup errors
+    }
 
     console.log("Launcher installed successfully")
 
@@ -571,6 +613,40 @@ async function findTarPartsOnDVDs(): Promise<string[]> {
     return []
   }
 }
+
+// Launch PostHog Launcher app
+ipcMain.handle("launch-posthog", async (): Promise<{success: boolean, error?: string}> => {
+  try {
+    const launcherPath = "/Applications/PostHog 3000 Launcher.app"
+
+    if (!existsSync(launcherPath)) {
+      return {
+        success: false,
+        error: "PostHog 3000 Launcher not found in Applications folder"
+      }
+    }
+
+    console.log("Launching PostHog 3000 Launcher from:", launcherPath)
+
+    // Use 'open' command to launch the app
+    execSync(`open "${launcherPath}"`, { encoding: "utf-8" })
+
+    console.log("PostHog 3000 Launcher launched successfully")
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error launching PostHog:", error)
+    return {
+      success: false,
+      error: `Failed to launch PostHog: ${error}`
+    }
+  }
+})
+
+// Quit the installer app
+ipcMain.handle("quit-app", async (): Promise<void> => {
+  app.quit()
+})
 
 // Get missing DVD numbers based on tar parts and disc_info
 ipcMain.handle(

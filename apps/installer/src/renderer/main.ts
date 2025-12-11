@@ -139,12 +139,12 @@ function updateNavigation(): void {
 }
 
 // Go to next screen
-function goNext(): void {
+async function goNext(): Promise<void> {
   const screen = screens[state.currentScreen]
 
   // Run screen's onNext handler if it exists
   if (screen.onNext) {
-    screen.onNext(state)
+    await screen.onNext(state)
   }
 
   // Special handling for installing screen
@@ -155,7 +155,7 @@ function goNext(): void {
 
   // Special handling for finish screen
   if (state.currentScreen === ScreenIndex.Finish) {
-    exitApp()
+    await exitApp()
     return
   }
 
@@ -191,10 +191,10 @@ function hideCancelDialog(): void {
 }
 
 // Exit the application
-function exitApp(): void {
-  if (window.electronAPI) {
-    // In Electron, close the window
-    window.close()
+async function exitApp(): Promise<void> {
+  if (window.electronAPI?.quitApp) {
+    // In Electron, quit the app
+    await window.electronAPI.quitApp()
   } else {
     // In browser, just show a message
     alert("Thanks for trying PostHog 3000 Demo Setup!")

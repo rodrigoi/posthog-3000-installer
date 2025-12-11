@@ -44,11 +44,6 @@ export const dvdScreen: Screen = {
           ${statusMessage}
         </div>
       </fieldset>
-
-      <p class="welcome-text" style="margin-top: 20px; font-size: 11px; color: #666;">
-        <strong>Note:</strong> The installer will look for the file <code>posthog_dvd.png</code>
-        on the selected drive to verify it is a valid PostHog installation disc.
-      </p>
     `
 
     return screen

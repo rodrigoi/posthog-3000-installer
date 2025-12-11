@@ -114,6 +114,18 @@ async function startFakeInstallation(state: InstallerState): Promise<void> {
           addLogMessage(`Disc ${discNum} already mounted ✓`, '#008000')
         }
 
+        // Copy launcher from Disc 1 (before it gets ejected)
+        if (discNum === 1 && window.electronAPI?.copyLauncherToTemp) {
+          addLogMessage('Copying launcher to temp directory...')
+          const launcherCopyResult = await window.electronAPI.copyLauncherToTemp()
+
+          if (launcherCopyResult.success) {
+            addLogMessage('Launcher copied to temp ✓', '#008000')
+          } else {
+            addLogMessage(`Warning: ${launcherCopyResult.error}`, '#FF8800')
+          }
+        }
+
         // Copy tar parts from this disc
         if (window.electronAPI?.copyTarPartsFromDisc) {
           addLogMessage(`Copying files from Disc ${discNum}...`)
@@ -138,6 +150,18 @@ async function startFakeInstallation(state: InstallerState): Promise<void> {
       addLogMessage('\nAll discs processed ✓', '#008000')
     } else if (dvdInfo && dvdInfo.total === 1) {
       addLogMessage('Single disc installation')
+
+      // Copy launcher to temp
+      if (window.electronAPI?.copyLauncherToTemp) {
+        addLogMessage('Copying launcher to temp directory...')
+        const launcherCopyResult = await window.electronAPI.copyLauncherToTemp()
+
+        if (launcherCopyResult.success) {
+          addLogMessage('Launcher copied to temp ✓', '#008000')
+        } else {
+          addLogMessage(`Warning: ${launcherCopyResult.error}`, '#FF8800')
+        }
+      }
 
       // Copy tar parts from single disc
       if (window.electronAPI?.copyTarPartsFromDisc) {
@@ -192,7 +216,7 @@ async function startFakeInstallation(state: InstallerState): Promise<void> {
 
     for (let i = 0; i < 5; i++) {
       await new Promise(resolve => setTimeout(resolve, 300))
-      addLogMessage(`${state.installPath}\\${FAKE_FILES[i]}`)
+      addLogMessage(`${INSTALL_PATH}\\${FAKE_FILES[i]}`)
     }
 
     // Complete

@@ -35,25 +35,42 @@
       "dist-electron",
       "dist"
     ],
+    "extraResources": [
+      {
+        "from": "resources/icon_16x16.png",
+        "to": "icon_16x16.png"
+      }
+    ],
     "mac": {
       "category": "public.app-category.developer-tools",
       "target": [
-        "dmg"
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        },
+        {
+          "target": "dir",
+          "arch": [
+            "arm64"
+          ]
+        }
       ],
-      "icon": "resources/icon.png"
+      "extendInfo": {
+        "LSUIElement": true
+      }
     },
     "win": {
       "target": [
         "nsis"
-      ],
-      "icon": "resources/icon.png"
+      ]
     },
     "linux": {
       "target": [
         "AppImage"
       ],
-      "category": "Development",
-      "icon": "resources/icon.png"
+      "category": "Development"
     }
   }
 }

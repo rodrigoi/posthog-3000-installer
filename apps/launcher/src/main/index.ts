@@ -15,6 +15,7 @@ import {
 
 const POSTHOG_URL = "http://localhost:8010"
 const MAX_LOG_ENTRIES = 1000
+const HEALTH_CHECK_INTERVAL = 5000 // Check every 5 seconds
 
 let tray: Tray | null = null
 let aboutWindow: BrowserWindow | null = null
@@ -23,6 +24,7 @@ let logsWindow: BrowserWindow | null = null
 // PostHog stack process management
 let stackProcess: ChildProcess | null = null
 let stackState: "stopped" | "starting" | "running" | "stopping" = "stopped"
+let healthCheckInterval: NodeJS.Timeout | null = null
 
 // Log storage
 interface LogEntry {
@@ -81,6 +83,46 @@ ipcMain.handle("clear-logs", () => {
 ipcMain.handle("get-stack-state", () => {
   return stackState
 })
+
+// Check if PostHog is actually responding
+async function checkPostHogHealth(): Promise<boolean> {
+  try {
+    const response = await fetch(POSTHOG_URL, {
+      method: "HEAD",
+      signal: AbortSignal.timeout(3000),
+    })
+    return response.ok
+  } catch {
+    return false
+  }
+}
+
+// Start periodic health checks
+function startHealthCheck(): void {
+  if (healthCheckInterval) return
+
+  healthCheckInterval = setInterval(async () => {
+    const isHealthy = await checkPostHogHealth()
+
+    if (isHealthy && stackState !== "running") {
+      stackState = "running"
+      updateTrayMenu()
+      addLog("system", "PostHog is now responding")
+    } else if (!isHealthy && stackState === "running") {
+      stackState = "stopped"
+      updateTrayMenu()
+      addLog("system", "PostHog stopped responding")
+    }
+  }, HEALTH_CHECK_INTERVAL)
+}
+
+// Stop periodic health checks
+function stopHealthCheck(): void {
+  if (healthCheckInterval) {
+    clearInterval(healthCheckInterval)
+    healthCheckInterval = null
+  }
+}
 
 // Update the tray menu based on current state
 function updateTrayMenu(): void {
@@ -194,25 +236,25 @@ function startPostHog(): void {
   updateTrayMenu()
 
   // Spawn posthog-stack up
-  stackProcess = spawn("posthog-stack", ["up"], {
+  // Use full path in case PATH is not set correctly
+  const posthogStackPath = "/usr/local/bin/posthog-stack"
+
+  // Set up proper PATH that includes common locations for docker, etc.
+  const env = {
+    ...process.env,
+    PATH: "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin:" + (process.env.PATH || "")
+  }
+
+  stackProcess = spawn(posthogStackPath, ["up"], {
     shell: true,
     stdio: "pipe",
     detached: false,
+    env: env,
   })
 
   stackProcess.stdout?.on("data", (data: Buffer) => {
     const output = data.toString()
     addLog("stdout", output)
-
-    // Detect when stack is ready (you may need to adjust this based on actual output)
-    if (
-      output.includes("ready") ||
-      output.includes("Running") ||
-      output.includes("started")
-    ) {
-      stackState = "running"
-      updateTrayMenu()
-    }
   })
 
   stackProcess.stderr?.on("data", (data: Buffer) => {
@@ -221,13 +263,8 @@ function startPostHog(): void {
 
   stackProcess.on("spawn", () => {
     addLog("system", "Process spawned successfully")
-    // Process started, assume running after a short delay
-    setTimeout(() => {
-      if (stackState === "starting") {
-        stackState = "running"
-        updateTrayMenu()
-      }
-    }, 3000)
+    // Start health checks to detect when PostHog is actually ready
+    startHealthCheck()
   })
 
   stackProcess.on("error", (err) => {
@@ -256,11 +293,23 @@ async function stopPostHog(): Promise<void> {
   stackState = "stopping"
   updateTrayMenu()
 
+  // Stop health checks
+  stopHealthCheck()
+
   // Run posthog-stack down to properly stop
   return new Promise((resolve) => {
-    const downProcess = spawn("posthog-stack", ["down"], {
+    const posthogStackPath = "/usr/local/bin/posthog-stack"
+
+    // Set up proper PATH that includes common locations for docker, etc.
+    const env = {
+      ...process.env,
+      PATH: "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin:" + (process.env.PATH || "")
+    }
+
+    const downProcess = spawn(posthogStackPath, ["down"], {
       shell: true,
       stdio: "pipe",
+      env: env,
     })
 
     downProcess.stdout?.on("data", (data: Buffer) => {
@@ -328,13 +377,21 @@ function createTray(): void {
 
   // Try to load icon from resources, fallback to empty icon
   try {
-    const iconPath = join(__dirname, "../../resources/icon.png")
+    // In packaged app, use process.resourcesPath
+    // In development, use relative path from source
+    const iconPath = app.isPackaged
+      ? join(process.resourcesPath, "icon_16x16.png")
+      : join(__dirname, "../../resources/icon_16x16.png")
+
+    console.log("Loading tray icon from:", iconPath)
     const loadedIcon = nativeImage.createFromPath(iconPath)
+
     if (!loadedIcon.isEmpty()) {
       const resizedIcon = loadedIcon.resize({ width: 22, height: 22 })
       // Mark as template image on macOS for proper menu bar rendering
       resizedIcon.setTemplateImage(true)
       tray = new Tray(resizedIcon)
+      console.log("Tray icon loaded successfully")
     } else {
       // Fallback: create a simple colored icon so it's visible
       console.warn("Could not load icon from:", iconPath)
@@ -422,9 +479,31 @@ function showAboutWindow(): void {
   })
 }
 
+// Configure app as accessory (menu bar only) before ready event
+if (process.platform === "darwin") {
+  app.dock.hide()
+}
+
 // App lifecycle
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   createTray()
+
+  // Check if PostHog is already running
+  addLog("system", "Launcher started - checking if PostHog is already running...")
+  const isAlreadyRunning = await checkPostHogHealth()
+
+  if (isAlreadyRunning) {
+    addLog("system", "PostHog is already running")
+    stackState = "running"
+    updateTrayMenu()
+    startHealthCheck()
+  } else {
+    // Auto-start PostHog on launch
+    addLog("system", "Auto-starting PostHog...")
+    setTimeout(() => {
+      startPostHog()
+    }, 1000) // Small delay to ensure tray is ready
+  }
 })
 
 // Prevent app from quitting when all windows are closed (keep running in tray)
