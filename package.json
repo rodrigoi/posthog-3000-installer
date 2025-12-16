@@ -1,15 +1,13 @@
 {
-  "name": "posthog-3000-apps",
+  "name": "posthog-3000-demo",
   "version": "98.0.1998",
   "description": "Monorepo for PostHog 3000 Electron applications",
   "private": true,
-  "author": "PostHog Community",
+  "author": "PostHog <hey@posthog.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "pnpm --filter installer dev",
-    "build": "pnpm --filter installer build",
     "typecheck": "pnpm -r typecheck",
-    "build:all": "pnpm -r build",
+    "build": "pnpm -r build",
     "dev:installer": "pnpm --filter installer dev",
     "build:installer": "pnpm --filter installer build",
     "build:installer:mac": "pnpm run build:launcher:mac && pnpm --filter installer build:mac",
@@ -24,5 +22,5 @@
   "devDependencies": {
     "typescript": "^5.9.3"
   },
-  "packageManager": "pnpm@9.15.5+sha256.8472168c3e1fd0bff287e694b053fccbbf20579a3ff9526b6333beab8df65a8d"
+  "packageManager": "pnpm@10.26.0+sha512.3b3f6c725ebe712506c0ab1ad4133cf86b1f4b687effce62a9b38b4d72e3954242e643190fc51fa1642949c735f403debd44f5cb0edd657abe63a8b6a7e1e402"
 }

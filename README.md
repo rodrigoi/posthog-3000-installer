@@ -1,45 +1,44 @@
-# PostHog 3000 Apps
+# PostHog 3000 Demo
 
-> A pnpm workspace monorepo containing Electron apps with Windows 98 aesthetic
+> Run PostHog locally on MacOS with a Windows 98 aesthetic
+
+A retro-themed demo for running PostHog on your local machine. The stack runs inside a Docker-compose-like single executable managed by `posthog-stack`.
 
 ## Apps
 
 | App           | Description                                  | Location          |
 | ------------- | -------------------------------------------- | ----------------- |
-| **Installer** | Classic InstallShield-style wizard installer | `apps/installer/` |
-| **Launcher**  | System tray app that runs in the background  | `apps/launcher/`  |
+| **Installer** | Windows 98 InstallShield-style wizard        | `apps/installer/` |
+| **Launcher**  | System tray app to control the PostHog stack | `apps/launcher/`  |
 
 ### Installer
 
-A nostalgic Windows 98 InstallShield experience with PostHog branding.
+A nostalgic Windows 98 InstallShield experience that sets up everything you need:
 
-- Wizard-style flow: Welcome → License → Directory → Components → Config → Progress → Finish
-- Fake installation progress with retro file names
-- Easter eggs and nostalgic touches
+- Installs `PostHogStack.pkg` (the local PostHog stack)
+- Installs the Launcher app to `/Applications`
+- Supports multi-DVD installation for large PKG files
+- macOS only (for now)
 
 ### Launcher
 
-A minimal system tray application.
+A system tray app that manages the PostHog stack:
 
-- Lives in system tray/toolbar
-- Right-click menu with About dialog and Quit
-- About dialog styled with 98.css
+- Start/stop/restart PostHog with `posthog-stack up/down`
+- View live logs
+- Open PostHog in your browser at `http://localhost:8010`
+- Windows 98-styled About and Logs dialogs
 
 ## Development
 
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (v18+)
-- [pnpm](https://pnpm.io/) (v8+)
+- [pnpm](https://pnpm.io/) (v10+)
 
 ### Setup
 
 ```bash
-# Clone the repo
-git clone https://github.com/PostHog/posthog-3000-installer.git
-cd posthog-3000-installer
-
-# Install dependencies
 pnpm install
 ```
 
@@ -53,19 +52,19 @@ pnpm dev:installer
 pnpm dev:launcher
 ```
 
-The apps run in development mode with Vite's hot module replacement. Changes to renderer code will hot reload; changes to main process code will restart Electron.
-
 ### Building
 
 ```bash
-# Build for current platform
+# Build all apps
+pnpm build
+
+# Or build individually
 pnpm build:installer
 pnpm build:launcher
 
-# Build for specific platform
+# Build for macOS (only tested platform)
 pnpm build:installer:mac
-pnpm build:installer:win
-pnpm build:installer:linux
+pnpm build:launcher:mac
 ```
 
 Built apps are output to `apps/<app-name>/dist/`.
@@ -83,10 +82,10 @@ posthog-3000-installer/
 │   │       └── types/      # TypeScript types
 │   └── launcher/
 │       └── src/
-│           ├── main/       # System tray management
+│           ├── main/       # System tray & stack management
 │           ├── preload/    # Preload scripts
-│           └── renderer/   # About dialog
-├── packages/               # Shared packages (if needed)
+│           └── renderer/   # About & Logs dialogs
+├── packages/               # Shared packages
 ├── pnpm-workspace.yaml
 └── package.json
 ```
@@ -97,31 +96,6 @@ posthog-3000-installer/
 - **98.css** for Windows 98 aesthetic
 - **Vite** for building
 - **electron-builder** for packaging
-
-## Workspace Commands
-
-```bash
-# Run command in specific app
-pnpm --filter installer <command>
-pnpm --filter launcher <command>
-
-# Run command in all packages
-pnpm -r typecheck
-pnpm -r build
-
-# Add dependency to specific app
-pnpm --filter installer add some-package
-
-# Add dev dependency to root
-pnpm add -D -w some-dev-tool
-```
-
-## Adding a New App
-
-1. Create `apps/new-app/` directory
-2. Add `package.json` with unique name
-3. Copy Electron structure from existing app
-4. Add scripts to root `package.json`
 
 ## Credits
 
